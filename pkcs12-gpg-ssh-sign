@@ -65,12 +65,12 @@ nc -l \
    localhost "$SIGN_PASSWORD_PORT" | \
     gpg --pinentry-mode loopback \
         --decrypt \
-        --passphrase-file <(echo -n "$gpg_password_password") \
+        --passphrase-file <(cat <<< "$gpg_password_password") \
         --batch |
     tr --delete '\n' |
     osslsigncode -pkcs12 <(
 	gpg --decrypt \
-	    --passphrase-file <(echo -n "$gpg_cert_password") \
+	    --passphrase-file <(cat <<< "$gpg_cert_password") \
 	    --batch \
 	    "$SIGN_PKCS12_GPG_FILE") \
 		 -readpass /dev/stdin \
