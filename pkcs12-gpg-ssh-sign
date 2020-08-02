@@ -59,8 +59,9 @@ echo
 read -r \
      -p 'GPG-encrypted password.  Enter passphrase: ' \
      -s gpg_password_password
+echo
 
-echo $'\nSigning Code.  Reading password from localhost:'"$SIGN_PASSWORD_PORT"'...'
+echo "Signing Code.  Reading password from localhost:$SIGN_PASSWORD_PORT..."
 nc -l \
    localhost "$SIGN_PASSWORD_PORT" | \
     gpg --pinentry-mode loopback \
