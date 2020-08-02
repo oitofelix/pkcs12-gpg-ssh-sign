@@ -48,7 +48,7 @@ trap usage EXIT
 : "${SIGN_TIMESTAMP_URL:?Timestamp URL undefined}"
 in_file=${1:?First argument must be INPUT file}
 out_file=${2:?Second argument must be OUTPUT file}
-SIGN_PASSWORD_PORT=${SIGN_PASSWORD_PORT:-$PASSWORD_PORT_DEFAULT}
+: ${SIGN_PASSWORD_PORT:=$PASSWORD_PORT_DEFAULT}
 
 trap EXIT
 
