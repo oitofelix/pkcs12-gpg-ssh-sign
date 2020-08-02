@@ -1,0 +1,40 @@
+pkcs12-gpg-ssh-sign
+===================
+
+This package is intended for signing Windows binary files using a
+GPG-encrypted PKCS#12 certificate and its respective GPG-encrypted
+password, which is sent through SSH.  Two scripts are provided for
+this task: pkcs12-gpg-ssh-sign and pkcs12-gpg-ssh-sign-send.
+
+The rationale behind this tool is twofold:
+
+1. Document a viable recipe for signing PE binaries using a PKCS#12
+   certificate on Unix-like systems;
+
+2. Improve security by avoiding storage and transmission of
+   certificate-password pairs in the same media, and by adding another
+   layer of encryption.
+
+The passphrases for both certificate and password are independent and
+SSH access is needed in the signing machine for the trusted
+password-sending one.
+
+The direct dependencies of this package are:
+
+  - netcat;
+  - GPG (https://gnupg.org/);
+  - OpenSSL (https://www.openssl.org/);
+  - osslsigncode;
+  - SSH (https://www.openssh.com/).
+
+Hopefully no sensitive information is written to disk, passed as an
+argument or in the environment.  Encrypted IPC is done using sockets
+while the plain-text one is implemented using pipes.
+
+--
+Copyright (C) 2020 Bruno Félix Rezende Ribeiro <oitofelix@gnu.org>
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.  This file is offered as-is,
+  without any warranty.

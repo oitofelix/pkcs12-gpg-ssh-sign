@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2020 Bruno Félix Rezende Ribeiro <oitofelix@gnu.org>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+PASSWORD_PORT_DEFAULT='3000'
+
+set -o errexit
+
+umask u=rw,g=,o=
+
+function depends
+for cmd in "$@"; do
+    if ! which "$cmd" >/dev/null; then
+	echo "Command '$cmd' is required.  Please, install it."
+	exit 1
+    fi
+done
+
+depends nc gpg openssl osslsigncode
+
+function usage
+{
+    echo "\
+Usage: SIGN_PKCS12_GPG_FILE=CERT-FILE \\
+       SIGN_PASSWORD_PORT=PORT \\
+       SIGN_TIMESTAMP_URL=URL \\
+       $0 INPUT-FILE OUTPUT-FILE
+
+Sign INPUT-FILE into OUTPUT-FILE using GPG-encrypted PKCS#12
+certificate CERT-FILE which is locked by a GPG-encrypted password to
+be sent to localhost:PORT through SSH by the companion script.
+
+This program asks for the GPG passphrase of both certificate and
+password.
+
+SIGN_PKCS12_GPG_FILE and SIGN_TIMESTAMP_URL must be specified.
+SIGN_PASSWORD_PORT defaults to '$PASSWORD_PORT_DEFAULT'." 1>&2
+}
+
+trap usage EXIT
+
+: "${SIGN_PKCS12_GPG_FILE:?PKCS#12 file undefined}"
+: "${SIGN_TIMESTAMP_URL:?Timestamp URL undefined}"
+in_file=${1:?First argument must be INPUT file}
+out_file=${2:?Second argument must be OUTPUT file}
+SIGN_PASSWORD_PORT=${SIGN_PASSWORD_PORT:-$PASSWORD_PORT_DEFAULT}
+
+trap EXIT
+
+read -r \
+     -p 'GPG-encrypted certificate.  Enter passphrase: ' \
+     -s gpg_cert_password
+echo
+read -r \
+     -p 'GPG-encrypted password.  Enter passphrase: ' \
+     -s gpg_password_password
+
+echo $'\nSigning Code.  Reading password from localhost:'"$SIGN_PASSWORD_PORT"'...'
+nc -l \
+   localhost "$SIGN_PASSWORD_PORT" | \
+    gpg --pinentry-mode loopback \
+        --decrypt \
+        --passphrase-file <(echo -n "$gpg_password_password") \
+        --batch |
+    tr --delete '\n' |
+    osslsigncode -pkcs12 <(
+	gpg --decrypt \
+	    --passphrase-file <(echo -n "$gpg_cert_password") \
+	    --batch \
+	    "$SIGN_PKCS12_GPG_FILE") \
+		 -readpass /dev/stdin \
+		 -t "$SIGN_TIMESTAMP_URL" \
+		 -in "$in_file" \
+		 -out "$out_file"
+
+echo Verifying signature...
+osslsigncode verify \
+             -in "$out_file"

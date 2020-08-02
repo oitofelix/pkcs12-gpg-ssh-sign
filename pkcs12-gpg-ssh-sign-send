@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2020 Bruno Félix Rezende Ribeiro <oitofelix@gnu.org>
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered as-is,
+# without any warranty.
+
+PASS_PORT_DEFAULT='3000'
+
+set -o errexit
+
+function depends
+for cmd in "$@"; do
+    if ! which "$cmd" >/dev/null; then
+	echo "Command '$cmd' is required.  Please, install it."
+	exit 1
+    fi
+done
+
+depends ssh
+
+function usage
+{
+    echo "\
+Usage: SIGN_PASS_PORT=PORT \\
+       $0 FILE [USER@]HOST
+
+Send GPG-encrypted password contained in FILE to [USER@]HOST:PORT.
+
+SIGN_PASS_PORT defaults to '$PASS_PORT_DEFAULT'." 1>&2
+}
+
+trap usage EXIT
+
+: ${1:?First argument must be GPG-encrypted password file name}
+: ${2:?Second argument must be user@host target}
+SIGN_PASS_PORT=${SIGN_PASS_PORT:-$PASS_PORT_DEFAULT}
+
+trap EXIT
+
+ssh -W localhost:"$SIGN_PASS_PORT" "$2" < "$1"
