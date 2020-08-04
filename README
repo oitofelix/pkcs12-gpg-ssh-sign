@@ -21,8 +21,9 @@ password-sending one.
 
 The direct dependencies of this package are:
 
+  - GNU Bash (https://www.gnu.org/software/bash/);
   - netcat;
-  - GPG (https://gnupg.org/);
+  - GnuPG (https://gnupg.org/);
   - osslsigncode;
   - SSH (https://www.openssh.com/).
 
