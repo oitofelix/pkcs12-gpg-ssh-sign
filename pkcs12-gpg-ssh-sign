@@ -21,7 +21,7 @@ for cmd in "$@"; do
     fi
 done
 
-depends nc gpg openssl osslsigncode
+depends nc gpg osslsigncode
 
 function usage
 {

@@ -23,7 +23,6 @@ The direct dependencies of this package are:
 
   - netcat;
   - GPG (https://gnupg.org/);
-  - OpenSSL (https://www.openssl.org/);
   - osslsigncode;
   - SSH (https://www.openssh.com/).
 
