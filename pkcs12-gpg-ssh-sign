@@ -66,12 +66,14 @@ nc -l \
    localhost "$SIGN_PASSWORD_PORT" | \
     gpg --decrypt \
         --passphrase-file <(cat <<< "$gpg_password_passphrase") \
-        --batch |
+        --batch \
+	--quiet |
     tr --delete '\n' |
     osslsigncode -pkcs12 <(
 	gpg --decrypt \
 	    --passphrase-file <(cat <<< "$gpg_cert_passphrase") \
 	    --batch \
+	    --quiet \
 	    "$SIGN_PKCS12_GPG_FILE") \
 		 -readpass /dev/stdin \
 		 -t "$SIGN_TIMESTAMP_URL" \
