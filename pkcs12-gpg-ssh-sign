@@ -54,24 +54,23 @@ trap EXIT
 
 read -r \
      -p 'GPG-encrypted certificate.  Enter passphrase: ' \
-     -s gpg_cert_password
+     -s gpg_cert_passphrase
 echo
 read -r \
      -p 'GPG-encrypted password.  Enter passphrase: ' \
-     -s gpg_password_password
+     -s gpg_password_passphrase
 echo
 
 echo "Signing Code.  Reading password from localhost:$SIGN_PASSWORD_PORT..."
 nc -l \
    localhost "$SIGN_PASSWORD_PORT" | \
-    gpg --pinentry-mode loopback \
-        --decrypt \
-        --passphrase-file <(cat <<< "$gpg_password_password") \
+    gpg --decrypt \
+        --passphrase-file <(cat <<< "$gpg_password_passphrase") \
         --batch |
     tr --delete '\n' |
     osslsigncode -pkcs12 <(
 	gpg --decrypt \
-	    --passphrase-file <(cat <<< "$gpg_cert_password") \
+	    --passphrase-file <(cat <<< "$gpg_cert_passphrase") \
 	    --batch \
 	    "$SIGN_PKCS12_GPG_FILE") \
 		 -readpass /dev/stdin \
