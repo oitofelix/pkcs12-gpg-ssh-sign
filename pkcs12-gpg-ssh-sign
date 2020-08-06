@@ -55,11 +55,11 @@ trap EXIT
 read -r \
      -p 'GPG-encrypted certificate.  Enter passphrase: ' \
      -s gpg_cert_passphrase
-echo
+[ -t 0 ] && echo
 read -r \
      -p 'GPG-encrypted password.  Enter passphrase: ' \
      -s gpg_password_passphrase
-echo
+[ -t 0 ] && echo
 
 echo "Signing Code.  Reading password from localhost:$SIGN_PASSWORD_PORT..."
 nc -l \
